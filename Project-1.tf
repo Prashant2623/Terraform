@@ -1,5 +1,3 @@
-# Project :: create a EC2 instance using terraform and run a nginx server on it
-
 # security credentials
 provider "aws"{}
 # variables declaration
