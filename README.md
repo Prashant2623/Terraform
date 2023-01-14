@@ -1,4 +1,4 @@
-Project-1 : Deploying Nginx container on Docker using Terraform. AWS cloud used.  
+Deploying Nginx container on Docker using Terraform. AWS cloud used.  
 
 Steps :-
 1) create custom VPC
