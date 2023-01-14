@@ -46,7 +46,7 @@ resource "aws_default_security_group" "default-sg" {
   vpc_id = aws_vpc.myapp-vpc.id  #to reference, use the vpc
 
 ingress {                                      #incoming traffic rule
-  from_port = 22               #range of port is also available 
+  from_port = 22             
   to_port = 22
   protocol = "tcp"
   cidr_blocks = [var.my_ip]
