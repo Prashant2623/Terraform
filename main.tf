@@ -10,7 +10,7 @@ variable  avail_zone {}
 variable  env_prefix {}
 variable instance_type {}
 variable my_ip {}
-variable my_public_key
+variable my_public_key {}
 
 # VPC
 resource "aws_vpc" "myapp-vpc" {
@@ -89,6 +89,12 @@ data "aws_ami" "latest-amazon-linux-image" {
     values = ["hvm"]
   }
 }
+
+resource "aws_key_pair" "ssh-key" {
+key_name = "server-key"
+public key = "var.my_public_key"
+}
+
 resource "aws_instance" "myapp-server" {
   ami = data.aws_ami.latest-amazon-linux-image.id
   instance_type = "t2.micro"
@@ -96,7 +102,7 @@ resource "aws_instance" "myapp-server" {
   vpc_security_group_ids = [aws_security_group.myapp-sg.id]
   availability_zone = var.avail_zone
   associate_public_ip_address = true   # access the server from the browser
-  key_name =  var.my_public_key  
+  key_name =  aws_key_pair.ssh-key.key_name  
   user_data = file("entry-script.sh")
 tags = {
       Name: "${var.env_prefix}-server"
