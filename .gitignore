@@ -1,0 +1,10 @@
+# local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+#Exclude all .tfvars file, which are likely to contain sensitive data, such as password,
+#private keys..
+*.tfvars
