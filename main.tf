@@ -1,20 +1,26 @@
 # security credentials
-provider "aws"{}
+provider "aws"{
+region = "us-east-1"
+}
+
 # variables declaration
 variable  vpc_cidr_block {}
 variable  subnet_cidr_block {}
 variable  avail_zone {}  
 variable  env_prefix {}
-variable my_ip {}
 variable instance_type {}
-# step 1 : create VPC
+variable my_ip {}
+variable my_public_key
+
+# VPC
 resource "aws_vpc" "myapp-vpc" {
   cidr_block =  var.vpc_cidr_block
   tags = {
     Name: "${var.env_prefix}-vpc"
   }
 }
-# step 2 : create custom subnet 
+
+# SUBNET 
 resource "aws_subnet" "myapp-subnet-1" {
   vpc_id = aws_vpc.myapp-vpc.id
   cidr_block = var.subnet_cidr_block
@@ -23,7 +29,8 @@ resource "aws_subnet" "myapp-subnet-1" {
     Name: "${var.env_prefix}-subnet-1"
   }
 }
-# step 3 : using the default route table & the internet gateway
+
+# ROUTE TABLE AND INTERNET GATEWAY
 resource "aws_default_route_table" "main-rtb" {
   default_route_table_id =  aws_vpc.myapp-vpc.default_route_table_id
    route {
@@ -41,7 +48,7 @@ resource "aws_internet_gateway" "myapp-igw" {
    }
 }
 
-# step 4 : creating security group  and then using defaul security group
+# SECURITY GROUP
 resource "aws_default_security_group" "default-sg" {
   vpc_id = aws_vpc.myapp-vpc.id  #to reference, use the vpc
 
@@ -52,40 +59,48 @@ ingress {                                      #incoming traffic rule
   cidr_blocks = [var.my_ip]
 }
 ingress {                                      #incoming traffic rule
-  from_port = 8080               #range of port is also available 
+  from_port = 8080                
   to_port = 8080
   protocol = "tcp"
-  cidr_blocks = ["0.0.0.0/0"]            # can be accessed from anywhere
+  cidr_blocks = ["0.0.0.0/0"]          
  }
 egress {                                      #outgoing traffic rule
   from_port = 0                
   to_port = 0
   protocol = "-1"
   cidr_blocks = ["0.0.0.0/0"]            
-  prefix_list_ids = []
+  prefix_list_ids = [var.my_ip]
  }
  tags = {
       Name: "${var.env_prefix}-sg"
    }  
 }
-#step5 : provision EC2 instance
+
+# EC2 INSTANCE
+data "aws_ami" "latest-amazon-linux-image" {
+  most_recent = true
+  owners = ["137112412989"]
+  filter {
+    name   = "name"
+    values = ["Amazon Linux 2 AMI-*"]
+  }
+  filter {
+    name = "virtualization-type"
+    values = ["hvm"]
+  }
+}
 resource "aws_instance" "myapp-server" {
-ami = "ami-0c4f7023847b90238"
-instance_type = var.instance_type
-subnet_id = aws_subnet.myapp-subnet-1.id
-vpc_security_group_ids = [aws_default_security_group.default-sg.id] 
-availability_zone = var.avail_zone
-associate_public_ip_address = true 
-key_name = "server-key-pair"
-user_data = <<EOF
-            #!/bin/bash
-            sudo apt-get update -y && sudo apt install docker-ce
-            sudo systemctl start docker
-            sudo usermod aG docker ec2-user
-            docker run -p 8080:80 nginx
-            EOF  
+  ami = data.aws_ami.latest-amazon-linux-image.id
+  instance_type = "t2.micro"
+  subnet_id = aws_subnet.myapp-subnet-1.id
+  vpc_security_group_ids = [aws_security_group.myapp-sg.id]
+  availability_zone = var.avail_zone
+  associate_public_ip_address = true   # access the server from the browser
+  key_name =  var.my_public_key  
+  user_data = file("entry-script.sh")
 tags = {
       Name: "${var.env_prefix}-server"
    }   
 }
+
 
