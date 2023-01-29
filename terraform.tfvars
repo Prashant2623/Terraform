@@ -1,0 +1,6 @@
+vpc_cidr_block = "10.0.0.0/16"
+subnet_cidr_block = "10.0.10.0/24"
+env_prefix = "dev"
+avail_zone = "us-east-1a" 
+instance_type = "t2.micro"
+my_ip =  "45.249.86.88/32"
