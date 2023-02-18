@@ -70,12 +70,12 @@ egress {
    }  
 }
 
-data "aws_ami" "latest-amazon-linux-image" {
+data "aws_ami" "amzlinux" {
   most_recent = true
-  owners = ["137112412989"]
+  owners = ["amazon"]
   filter {
     name   = "name"
-    values = ["Amazon Linux 2 AMI-*"]
+    values = ["amzn2-ami-hvm-*-gp2"]
   }
   filter {
     name = "virtualization-type"
@@ -84,7 +84,7 @@ data "aws_ami" "latest-amazon-linux-image" {
 }
 
 resource "aws_instance" "myapp-server" {
-  ami = data.aws_ami.latest-amazon-linux-image.id
+  ami = data.aws_ami.latest-amzlinux.id
   instance_type = "t2.micro"
   subnet_id = aws_subnet.myapp-subnet-1.id
   vpc_security_group_ids = [aws_default_security_group.default-sg.id]
