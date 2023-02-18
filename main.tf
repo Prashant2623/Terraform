@@ -87,7 +87,7 @@ resource "aws_instance" "myapp-server" {
   ami = data.aws_ami.latest-amazon-linux-image.id
   instance_type = "t2.micro"
   subnet_id = aws_subnet.myapp-subnet-1.id
-  vpc_security_group_ids = [aws_security_group.myapp-sg.id]
+  vpc_security_group_ids = [aws_default_security_group.default-sg.id]
   availability_zone = var.avail_zone
   associate_public_ip_address = true   
   key_name = "Terraform"   
