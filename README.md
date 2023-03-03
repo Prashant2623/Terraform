@@ -1,4 +1,4 @@
-Nginx container deployed on a server using Terraform.  
+Depoloyed Nginx on a server using Terraform.  
 
 Steps :-
 1) Create vpc
