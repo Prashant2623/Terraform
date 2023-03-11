@@ -7,4 +7,4 @@ Steps :-
 * Create route table and Internet Gateway
 * Create security group( Firewall)
 * Provision EC2 instance
-* Deploy Nginx Docker continer 
+* Deploy Nginx Docker container 
